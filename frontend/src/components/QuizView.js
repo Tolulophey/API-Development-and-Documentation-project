@@ -41,13 +41,12 @@ class QuizView extends Component {
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
-
   getNextQuestion = () => {
     const previousQuestions = [...this.state.previousQuestions];
     if (this.state.currentQuestion.id) {
       previousQuestions.push(this.state.currentQuestion.id);
     }
-
+  console.log(this.state.quizCategory.type)
     $.ajax({
       url: '/quizzes', //TODO: update request URL
       type: 'POST',
@@ -55,7 +54,7 @@ class QuizView extends Component {
       contentType: 'application/json',
       data: JSON.stringify({
         previous_questions: previousQuestions,
-        quiz_category: this.state.quizCategory,
+        quiz_category: this.state.quizCategory.type,
       }),
       xhrFields: {
         withCredentials: true,
@@ -105,6 +104,7 @@ class QuizView extends Component {
         <div className='choose-header'>Choose Category</div>
         <div className='category-holder'>
           <div className='play-category' onClick={this.selectCategory}>
+          {/* <div className='play-category' onClick={this.selectCategory({ type: 'All', id: 0 })}> */}
             ALL
           </div>
           {Object.keys(this.state.categories).map((id) => {
