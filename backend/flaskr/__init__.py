@@ -241,12 +241,15 @@ def create_app(test_config=None):
                 for category in categories:
                     data[category.type] = category.id
                 category_id = data[category_type]
-                questions = Question.query.filter(Question.category == category_id)
-
+                questions = Question.query.filter(Question.category == category_id).all()
             questions_id = [question.id for question in questions]
-            random_id = random.choice([id for id in questions_id if id not in previous_questions])
-            random_question = Question.query.filter(Question.id == random_id).one_or_none()
-
+            unique_id = [id for id in questions_id if id not in previous_questions]
+            if len(unique_id) == 0:
+                return jsonify({})
+            random_id = random.choice(unique_id)
+            random_question = Question.query.filter(
+                Question.id == random_id).one_or_none()
+            
             return jsonify({
                 'question': random_question.format()
             })
