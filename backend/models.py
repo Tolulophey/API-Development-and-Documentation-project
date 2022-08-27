@@ -8,8 +8,6 @@ database_name = DB_NAME
 database_path = 'postgresql://{}:{}@{}/{}'.format(
     DB_USER, DB_PASSWORD, 'localhost:5432', database_name)
 
-
-
 db = SQLAlchemy()
 
 """
