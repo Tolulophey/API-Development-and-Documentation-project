@@ -44,7 +44,6 @@ def create_app(test_config=None):
                              "GET, PUT, PATCH, POST, DELETE, OPTIONS")
         return response
 
-
     # Endpoints
 
     """
@@ -107,7 +106,8 @@ def create_app(test_config=None):
     @app.route("/questions/<int:question_id>", methods=['DELETE'])
     def delete_question(question_id):
         try:
-            question = Question.query.filter(Question.id == question_id).one_or_none()
+            question = Question.query.filter(
+                Question.id == question_id).one_or_none()
             if question is None:
                 abort(404)
             question.delete()
@@ -157,7 +157,8 @@ def create_app(test_config=None):
                 categories = Category.query.order_by(Category.id).all()
                 for category in categories:
                     data[category.id] = category.type
-                selection = Question.query.order_by(Question.id).filter(Question.question.ilike("%{}%".format(search)))
+                selection = Question.query.order_by(Question.id).filter(
+                    Question.question.ilike("%{}%".format(search)))
                 current_questions = paginate_questions(request, selection)
                 if current_questions == []:
                     return jsonify(
@@ -175,7 +176,8 @@ def create_app(test_config=None):
                         }
                     )
             else:
-                question = Question(question=question, answer=answer, category=category, difficulty=difficulty)
+                question = Question(
+                    question=question, answer=answer, category=category, difficulty=difficulty)
                 question.insert()
                 return jsonify(
                     {
@@ -227,34 +229,29 @@ def create_app(test_config=None):
     @app.route("/quizzes", methods=['POST'])
     def create_quiz():
         body = request.get_json()
-        previous_questions = body.get("previous_questions", None)
-        quiz_category = body.get("quiz_category", None)
-        # quiz_category = quiz_category_object['type']
+        previous_questions = body.get('previous_questions', None)
+        category_type = body.get('quiz_category', None)
         data = {}
         try:
-            categories = Category.query.all()
-            for category in categories:
-                data[category.type] = category.id
-            check = data[quiz_category]
-            if quiz_category == 'All':
-                selection = Question.query.order_by(Question.id).all()
-            if len(previous_questions) == 0:
-                selection = Question.query.filter(Question.category == check)
+            
+            if category_type == 'click':
+                questions = Question.query.all()
             else:
-                for id in previous_questions:
-                    selection = Question.query.filter(
-                        Question.category == check).filter(Question.id != id)
-            current_questions = paginate_questions(request, selection)
+                categories = Category.query.order_by(Category.id).all()
+                for category in categories:
+                    data[category.type] = category.id
+                category_id = data[category_type]
+                questions = Question.query.filter(Question.category == category_id)
 
-            return jsonify(
-                {
-                    "category_id": check,
-                    "category_name": quiz_category,
-                    "question": random.sample(current_questions, 1)[0]
-                }
-            )
+            questions_id = [question.id for question in questions]
+            random_id = random.choice([id for id in questions_id if id not in previous_questions])
+            random_question = Question.query.filter(Question.id == random_id).one_or_none()
+
+            return jsonify({
+                'question': random_question.format()
+            })
         except:
-            abort(422)
+            abort(404)
 
     """
     @TODO:
@@ -267,7 +264,7 @@ def create_app(test_config=None):
                 "success": False,
                 "error": 400,
                 "message": "bad request",
-            }), 400)
+                }), 400)
 
     @app.errorhandler(404)
     def not_found(error):
@@ -275,7 +272,7 @@ def create_app(test_config=None):
                 "success": False,
                 "error": 404,
                 "message": "resource not found",
-            }), 404)
+                }), 404)
 
     @app.errorhandler(405)
     def not_allowed(error):
@@ -283,7 +280,7 @@ def create_app(test_config=None):
                 "success": False,
                 "error": 405,
                 "message": "method not allowed",
-            }), 405)
+                }), 405)
 
     @app.errorhandler(422)
     def unprocessable(error):
@@ -291,5 +288,5 @@ def create_app(test_config=None):
                 "success": False,
                 "error": 422,
                 "message": "unprocessable",
-            }), 422)
+                }), 422)
     return app

@@ -236,8 +236,6 @@ The API will return four error types when requests fail:
 - Sample: `curl -X POST -H "Content-Type: application/json" -d "{'previous_questions': [1, 4, 20, 15], 'quiz_category': 'History'}" http://127.0.0.1:5000/quizzes`
 ```
 {
-    'category_id': 'category id',
-    'category_name': 'category name',
     'question': {
         'id': 1,
         'question': 'This is a question',
